@@ -1,0 +1,30 @@
+#!/bin/bash
+
+usage() {
+    echo "usage: $0 <project directory>"
+}
+
+ROOT_DIR=$(realpath $1); shift
+PROJ_NAME=$(basename "$ROOT_DIR")
+
+if [[ -z "$ROOT_DIR" ]]; then
+    usage
+    exit 1
+fi
+
+## output
+# ACUASI-yyyymmdd-hhmm-saa2.zip
+
+FLIGHT_DATA_JSON="ACUASI-*-flight_data.json"
+PROJECT_JSON="ACUASI-*-$PROJ_NAME.json"
+PDF="UTM-ACUASI-*.pdf"
+
+set -e
+for f in $(ls "$ROOT_DIR"); do
+    echo "$ROOT_DIR/$f"
+    cd "$ROOT_DIR/$f"
+    ls $FLIGHT_DATA_JSON $PDF &>/dev/null
+    JSON_FILE=$(ls $PROJECT_JSON)
+    ZIP_FILE=$(echo $JSON_FILE | sed 's/\.json/.zip/')
+    zip $ZIP_FILE $FLIGHT_DATA_JSON $JSON_FILE $PDF
+done
